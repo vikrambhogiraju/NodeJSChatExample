@@ -1,0 +1,78 @@
+<!doctype html>
+
+<!--
+    Name of the App : NodeJS Chat Example
+    Description : A simple multiroom chat application to showcase Node.js and Socket.io
+-->
+
+<html lang="en">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <head>
+        <title>Chat Rooms - Home</title>
+
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+
+        <!-- CSS -->
+        <link rel="stylesheet" href="/css/chat.css">
+
+    </head>
+
+    <body>
+        <div class="container">
+            <div class="row jumbotron">
+                <h1>Chat Rooms</h1>
+
+                <p>A simple multiroom chat application to showcase Node.js and Socket.io</p>
+
+            </div>
+
+            <div class="row">
+                <div class="col-md-10">
+                    <div class="room-header">Lobby</div>
+
+                    <div id="messages" ><div>Msg1...</div><div>Msg2...</div></div>
+
+                    <form id="message-form" class="form-inline">
+                        <input id="message" type="text" class="form-control" placeholder="Enter a message">
+
+                        <button id="send" class="btn btn-default" type="submit">Send</button><span> or Press Enter</span>
+
+                    </form>
+
+                    <div class="help">
+                        Chat commands:
+
+                        <ul>
+                            <li>Change Nickname: <code>/nickname [user name]</code></li>
+
+                            <li>Join Room: <code>/join [room name]</code></li>
+
+                        </ul>
+                    </div>
+                </div>
+
+                 <div class="col-md-2">
+                    <div class="room-header">Rooms</div>
+
+                    <div id="room-list"><div class="room selected">Lobby</div><div class="room">Room 1</div><div class="room">Room 2</div></div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Scripts - external -->
+        <script src="/socket.io/lib/socket.io.js"></script>  <!-- Socket.io -->
+        <script src="//code.jquery.com/jquery-1.11.3.min.js"></script> <!-- jQuery -->
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script> <!-- Bootstrap -->
+
+        <!-- Scripts -->
+        <script src="/js/chat.js"></script>
+        <script src="/js/chat_client.js"></script>
+
+    </body>
+</html>

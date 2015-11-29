@@ -1,0 +1,61 @@
+/* chat.css */
+
+.room-header {
+    background-color: #ddd;
+    padding: 1em;
+    margin-left: -14px;
+    margin-right: -14px;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+}
+
+#messages {
+    height: 300px;
+    overflow: auto;
+    background-color: #eee;
+    padding: 1em;
+    margin-left: -14px;
+    margin-right: -14px;
+}
+
+#room-list {
+    height: 300px;
+    overflow: auto;
+    padding: 1em;
+    margin-left: -15px;
+    margin-right: -15px;
+}
+
+.room {
+    border-bottom: 1px solid #eee;
+    padding: 0.5em;
+}
+
+.room:hover {
+    background-color: #f7f7f9;
+    border: 1px solid #e1e1e8;
+    color: #000;
+    cursor: pointer;
+}
+
+.selected {
+    background-color: #ddd;
+    border-radius: 5px;
+}
+
+#message-form {
+    margin-bottom: 1em;
+    padding: 0;
+    margin-left: -14px;
+    margin-right: -14px;
+}
+
+#message {
+    width: 100%;
+}
+
+.help {
+    font-size: 0.85em;
+    margin-left: -14px;
+    margin-right: -14px;
+}
