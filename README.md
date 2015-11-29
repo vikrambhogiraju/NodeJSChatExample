@@ -3,7 +3,7 @@
 A chat server and client written to demonstrate Node.js and Socket.io library.
 
 ## 1. Install Dependent Node Modules
-Details of the Program and list of npm packages required by this project. 
+Package.json consists of details of the Program and list of npm packages required by this project. 
 
 To download packages, run
 
