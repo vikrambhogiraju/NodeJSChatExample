@@ -73,32 +73,72 @@
         <!-- Scripts -->
         <script src="/js/chat.js"></script>
         <script src="/js/chat_client.js"></script>
+
         <script>
+
             $(function() {
                 var socket = io();
-                var myName = '';
-                socket.on('message', function(message) {
+                var myName = "Not assigned";
+
+                socket.on('new name', function(newClientName) {
+                    console.log('Hello, your assigned name is ' + newClientName);
+                    myName = newClientName;
+                });
+
+                socket.on('disconnect', function(clientName) {
+                    console.log('User ' + clientName + ' has left Chat rooms!');
+                });
+
+                socket.on('user joined room', function(clientName) {
+                    console.log('User ' + clientName + ' has joined!');
+                });
+
+                socket.on('user left room', function(clientName) {
+                    console.log('User ' + clientName + ' has left!');
+                });
+
+                socket.on('room joined', function(roomName) {
+                    console.log('You have joined ' + roomName + "!");
+                    if(roomName === "lobby")
+                        socket.emit('change name', 'Guest1');
+                    else
+                        socket.emit('message', "Hello everybody from " + myName);
+                });
+
+                socket.on('user message', function(message) {
                     console.log(message.name + ' - ' + message.text);
                 });
-                socket.on('room join', function(message) {
-                    console.log(message.text);
-                    myName = message.name;
-                    if(myName.indexOf('Guest') >= 0) {
-                        socket.emit('name change', 'Vikram');
-                        socket.emit('name change', 'Shwetha');
-                        socket.emit('name change', 'Ritwik');
-                        socket.emit('name change', 'Guest1');
-                    }
-                    
+
+                socket.on('same name', function(clientName) {
+                    console.log("Your name is already " + clientName);
                 });
-                socket.on('name change', function(message) {
-                    console.log(message.text);
-                    myName = message.name;
-                    console.log('name is ' + myName);
-                    if(message.name == "Vikram" || message.name == "Ritwik") {
-                        socket.emit('join room', 'Room 1');
-                        console.log(myName + ' - Joining Room 1');
-                    }
+
+                socket.on('name taken', function(newClientName) {
+                    console.log(newClientName + " is already taken! Please try another name");
+                    if(newClientName == "Vikram")
+                        socket.emit('change name', 'Shwetha');
+                    else if(newClientName == "Shwetha")
+                        socket.emit('change name', 'Ritwik');
+                });
+
+                socket.on('name invalid guest', function(newClientName) {
+                    console.log(newClientName + " : Client Name starts with 'Guest' and is invalid! Try another name");
+                    socket.emit('change name', 'Vikram');
+                });
+
+                socket.on('name changed', function(newClientName) {
+                    console.log('Name changed to ' + newClientName + " successfully!");
+                    myName = newClientName;
+                    if(newClientName === "Vikram" || newClientName === "Ritwik")
+                        socket.emit('join room', "Room 1");
+                });
+
+                socket.on('user name changed', function(message) {
+                    console.log('User ' + message.oldName + "'s name is changed to " + message.newName + "!");
+                });
+
+                socket.on('same room', function(clientName) {
+                    console.log("You are already in room : " + clientName);
                 });
                 
             });
