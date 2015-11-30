@@ -1,4 +1,6 @@
-// Modules
+/* server,js */
+
+// Node.js Modules
 var http = require('http');
 var fs = require('fs');
 var path = require('path');
@@ -61,7 +63,7 @@ function sendResponse(res, filePath) {
 
                     }
                 });
-
+                
             } else {
                 // If file not found in path
                 // Send 'File not found' - 404
@@ -73,7 +75,7 @@ function sendResponse(res, filePath) {
 }
 
 // Server to serve static files
-http.createServer( function(req, res) {
+var httpServer = http.createServer( function(req, res) {
     var filePath = './public' + req.url; // Translate req url to File Path
 
     // If not file specified in URL, translate as index.html
@@ -81,21 +83,20 @@ http.createServer( function(req, res) {
         filePath += 'index.html';
 
     }
-
+    
     sendResponse( res, filePath);
-
-})
-
-.listen(PORT, function(err) {  //Start server at designated port (PORT)
-    if(err) {
-        console.log("Error in running server:" + err);
-
-    } else {
-        console.log("Server running successfully on port : " + PORT);
-
-    }
+    
 });
 
+//Start server at designated port (PORT)
+httpServer.listen(PORT, function(err) {  
+    return console.log( err ? err.toString() : "Running Successfully at port : " + PORT);
+    
+});
+
+//Start Chat server
+var chatServer = require('./lib/chatServer.js');
+chatServer.listen(httpServer);
 
 
 

@@ -33,9 +33,9 @@
 
             <div class="row">
                 <div class="col-md-10">
-                    <div class="room-header">Lobby</div>
+                    <div class="room-header">Welcome Guest3, you are in Lobby!</div>
 
-                    <div id="messages" ><div>Msg1...</div><div>Msg2...</div></div>
+                    <div id="messages" ><div><span class="text-primary">Guest1 - </span>Msg1...</div><div><span class="text-primary">Guest2 - </span>Msg2...</div></div>
 
                     <form id="message-form" class="form-inline">
                         <input id="message" type="text" class="form-control" placeholder="Enter a message">
@@ -48,9 +48,9 @@
                         Chat commands:
 
                         <ul>
-                            <li>Change Nickname: <code>/nickname [user name]</code></li>
+                            <li>Change your user name: <code>/name [user name]</code></li>
 
-                            <li>Join Room: <code>/join [room name]</code></li>
+                            <li>Join / Create Room: <code>/join [room name]</code></li>
 
                         </ul>
                     </div>
@@ -66,13 +66,44 @@
         </div>
 
         <!-- Scripts - external -->
-        <script src="/socket.io/lib/socket.io.js"></script>  <!-- Socket.io -->
+        <script src="/socket.io/socket.io.js"></script>  <!-- Socket.io -->
         <script src="//code.jquery.com/jquery-1.11.3.min.js"></script> <!-- jQuery -->
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script> <!-- Bootstrap -->
 
         <!-- Scripts -->
         <script src="/js/chat.js"></script>
         <script src="/js/chat_client.js"></script>
+        <script>
+            $(function() {
+                var socket = io();
+                var myName = '';
+                socket.on('message', function(message) {
+                    console.log(message.name + ' - ' + message.text);
+                });
+                socket.on('room join', function(message) {
+                    console.log(message.text);
+                    myName = message.name;
+                    if(myName.indexOf('Guest') >= 0) {
+                        socket.emit('name change', 'Vikram');
+                        socket.emit('name change', 'Shwetha');
+                        socket.emit('name change', 'Ritwik');
+                        socket.emit('name change', 'Guest1');
+                    }
+                    
+                });
+                socket.on('name change', function(message) {
+                    console.log(message.text);
+                    myName = message.name;
+                    console.log('name is ' + myName);
+                    if(message.name == "Vikram" || message.name == "Ritwik") {
+                        socket.emit('join room', 'Room 1');
+                        console.log(myName + ' - Joining Room 1');
+                    }
+                });
+                
+            });
+        
+        </script>
 
     </body>
 </html>
