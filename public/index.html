@@ -102,7 +102,7 @@
                     if(roomName === "lobby")
                         socket.emit('change name', 'Guest1');
                     else
-                        socket.emit('message', "Hello everybody from " + myName);
+                        socket.emit('new msg', "Hello everybody from " + myName);
                 });
 
                 socket.on('user message', function(message) {
@@ -115,10 +115,16 @@
 
                 socket.on('name taken', function(newClientName) {
                     console.log(newClientName + " is already taken! Please try another name");
-                    if(newClientName == "Vikram")
-                        socket.emit('change name', 'Shwetha');
-                    else if(newClientName == "Shwetha")
-                        socket.emit('change name', 'Ritwik');
+                    if(newClientName == "Guest1") {
+                        socket.emit('change name', 'Vikram'); console.log('requesting name - Vikram');
+                    }
+                    if(newClientName == "Vikram") {
+                        socket.emit('change name', 'Shwetha');  console.log('requesting name - Shwetha');
+                    }
+                    else if(newClientName == "Shwetha") {
+                        socket.emit('change name', 'Ritwik');  console.log('requesting name - Ritwik');
+                    }
+
                 });
 
                 socket.on('name invalid guest', function(newClientName) {
@@ -131,6 +137,7 @@
                     myName = newClientName;
                     if(newClientName === "Vikram" || newClientName === "Ritwik")
                         socket.emit('join room', "Room 1");
+                    socket.emit('rooms')
                 });
 
                 socket.on('user name changed', function(message) {
@@ -141,9 +148,12 @@
                     console.log("You are already in room : " + clientName);
                 });
                 
+                socket.on('rooms list', function(rooms) {
+                    console.log("Rooms : " + rooms.join(', '));
+                });
+
             });
         
         </script>
-
     </body>
 </html>
