@@ -35,34 +35,29 @@
                 <div class="col-md-10">
                     <div class="room-header">Welcome <span id='name'></span>, you are in <span id='room-name'>Lobby</span>!</div>
 
-                    <div id="messages">
-                        <div><span class="text-primary">Guest1 - </span>Msg1...</div>
-                        <div><span class="text-primary">Guest2 - </span>Msg2...</div>
-                    </div>
+                    <div id="messages"></div>
 
-                    <form id="message-form" class="form-inline">
-                        <input id="message" type="text" class="form-control" placeholder="Enter a message">
-
-                        <button id="send" class="btn btn-default" type="submit">Send</button><span> or Press Enter</span>
-
+                    <form id="message-form">
+                        <div class="input-group">
+                            <div class="input-group-btn">
+                                <button id="command-button" type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">New Message<span class="caret"></span></button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="command" href="#" placeholder="Enter a message">New Message</a></li>
+                                    <li><a class="command" href="#" placeholder="Enter a new room name">New Room</a></li>
+                                    <li><a class="command" href="#" placeholder="Enter a new name">Change Name</a></li>
+                                </ul>
+                            </div>
+                            <input type="text" id="message" class="form-control" placeholder="Enter a message">
+                            <span class="input-group-btn"><button class="btn btn-default" type="submit">Ok</button></span>
+                        </div>
+                        <small class="pull-right"> Click OK or Press Enter</small>
                     </form>
-
-                    <div class="help">
-                        Chat commands:
-
-                        <ul>
-                            <li>Change your user name: <code>/name [user name]</code></li>
-
-                            <li>Join / Create Room: <code>/join [room name]</code></li>
-
-                        </ul>
-                    </div>
                 </div>
 
                  <div class="col-md-2">
                     <div class="room-header">Rooms</div>
 
-                    <div id="room-list"><div class="room selected">Lobby</div><div class="room">Room 1</div><div class="room">Room 2</div></div>
+                    <div id="room-list"><div class="room selected">Lobby</div></div>
 
                 </div>
             </div>
@@ -82,129 +77,176 @@
             var myName = "";
             var myRoomName = "Lobby";
 
-            function divSys (msg, err) {
-                var cls = err ? 'text-danger' : 'text-info'
+            function divSys (msg, isErr) {
+                var cls = isErr ? 'text-danger' : 'text-info';
                 return $("<div class='" + cls + "'></div>").html('<i>' + msg + '</i>');
             }
 
-            function divMsg (usr, msg) {
+            function divMsg (msg, usr) {
                 return $("<div></div>").html('<span class="text-primary">' + usr + '</span> - ' + msg);
+            }
+
+            function appendMsg(msg, sender, isErr) {
+                $appendDiv = sender ? divMsg(msg, sender) : divSys(msg, isErr);
+                $('#messages').append($appendDiv);
+                $('#messages').scrollTop($('#messages').prop('scrollHeight'));
+            }
+
+            function newMessage() {
+                var msg = $('#message').val();
+                if(msg) {
+                    $('#message').val('');
+                    socket.emit('new msg', msg);
+                    appendMsg(msg, myName);
+                } else {
+                    $('#message').focus();
+                }
+            }
+
+            function newRoom() {
+                var roomName = $('#message').val();
+                if(roomName) {
+                    joinRoom(roomName);
+                } else {
+                    $('#message').focus();
+                }
+            }
+
+             function changeName() {
+                var newName = $('#message').val();
+                if(newName) {
+                    socket.emit('change name', newName);
+                } else {
+                    $('#message').focus();
+                }
+            }
+
+            function joinRoom(name) {
+                if(name) {
+                    socket.emit('join room', name);
+                    setTimeout(1000);
+                    socket.emit('rooms');
+                }
             }
 
             function updateRooms(rooms) {
                 console.log("Rooms : " + rooms.join(', '));
-                var $divRoom;
+                var $divRoom, roomName;
+
                 $('#room-list').html('');
                 for(var i =0; i < rooms.length; i++) {
                     $divRoom = $("<div class='room'></div>").text(rooms[i]);
+                    $divRoom.on('click', function() {
+                        console.log($(this).text());
+                        joinRoom($(this).text());
+                    });
                     if(rooms[i] === myRoomName) $divRoom.addClass('selected');
                     $("#room-list").append($divRoom);
                 }
+            }
+
+            function updateCommandBtnText(text, placeholder) {
+                $('#command-button').html(text + '<span class="caret"></span>');
+                $('#message').attr('placeholder', placeholder);
             }
 
             $(function() {
                 socket.on('new name', function(newClientName) {
                     myName = newClientName;
                     $('#name').text(myName);
-                    $('#messages').append(divSys('Hello, your assigned name is ' + myName));
+                    appendMsg('Hello, your assigned name is ' + myName);
                     socket.emit('rooms');
                 });
 
                 socket.on('disconnect', function(clientName) {
-                    console.log('User ' + clientName + ' has left Chat rooms!');
-                    $('#messages').append(divSys('User ' + clientName + ' has left Chat rooms!'));
+                    appendMsg('User ' + clientName + ' has left Chat rooms!');
                 });
 
                 socket.on('user joined room', function(clientName) {
-                    console.log('User ' + clientName + ' has joined!');
-                    $('#messages').append(divSys('User ' + clientName + ' has joined!'));
+                    appendMsg('User ' + clientName + ' has joined!');
                 });
 
                 socket.on('user left room', function(clientName) {
-                    console.log('User ' + clientName + ' has left!');
-                    $('#messages').append(divSys('User ' + clientName + ' has left!'));
+                    appendMsg('User ' + clientName + ' has left!');
                 });
 
                 socket.on('room joined', function(roomName) {
                     myRoomName = roomName;
                     $('#room-name').text(myRoomName);
-                    console.log('You have joined ' + roomName + "!");
-                    $('#messages').append(divSys('You have joined ' + roomName + "!"));
-                    if(roomName === "Lobby")
-                        socket.emit('change name', 'Guest1');
-                    else
-                        socket.emit('new msg', "Hello everybody from " + myName);
+                    appendMsg('You have joined ' + roomName + '!');
+                    socket.emit('new msg', "Hello everybody from " + myName);
                 });
 
                 socket.on('user new msg', function(msg) {
-                    console.log(msg.name + ' - ' + msg.text);
-                    $('#messages').append(divMsg(msg.name, msg.text));
+                    appendMsg(msg.text,msg.name);
                 });
 
                 socket.on('same name', function(clientName) {
-                    console.log("Your name is already " + clientName);
-                    $('#messages').append(divSys("Your name is already " + clientName, true));
+                    appendMsg("Your name is already " + clientName, isErr=true);
                 });
 
                 socket.on('name taken', function(newClientName) {
-                    console.log(newClientName + " is already taken! Please try another name");
-                    $('#messages').append(divSys(newClientName + " is already taken! Please try another name", true));
+                    appendMsg(newClientName + " is already taken! Please try another name", isErr=true);
                     if(newClientName == "Guest1") {
-                        socket.emit('change name', 'Vikram'); console.log('requesting name - Vikram');
+                        socket.emit('change name', 'Vikram');
                     }
                     if(newClientName == "Vikram") {
-                        socket.emit('change name', 'Shwetha');  console.log('requesting name - Shwetha');
+                        socket.emit('change name', 'Shwetha');
                     }
                     else if(newClientName == "Shwetha") {
-                        socket.emit('change name', 'Ritwik');  console.log('requesting name - Ritwik');
+                        socket.emit('change name', 'Ritwik');
                     }
 
                 });
 
                 socket.on('name invalid guest', function(newClientName) {
-                    console.log(newClientName + " : Client Name starts with 'Guest' and is invalid! Try another name");
-                    $('#messages').append(divSys(newClientName + " : Client Name starts with 'Guest' and is invalid! Try another name", true));
+                    appendMsg(newClientName + " : Client Name starts with 'Guest' and is invalid! Try another name", isErr=true);
                     socket.emit('change name', 'Vikram');
                 });
 
                 socket.on('name changed', function(newClientName) {
                     myName = newClientName;
                     $('#name').text(myName);
-                    console.log('Name changed to ' + newClientName + ' successfully!');
-                    $('#messages').append(divSys('Name changed to ' + newClientName + ' successfully!'));
+                    appendMsg('Name changed to ' + newClientName + ' successfully!');
 
                     if(newClientName === "Vikram" || newClientName === "Ritwik")
                         socket.emit('join room', "Room 1");
+
                     socket.emit('rooms');
                 });
 
                 socket.on('user name changed', function(message) {
-                    console.log('User ' + message.oldName + "'s name is changed to " + message.newName + "!");
-                    $('#messages').append(divSys('User ' + message.oldName + "'s name is changed to " + message.newName + "!"));
+                    appendMsg('User ' + message.oldName + "'s name is changed to " + message.newName + "!");
                 });
 
                 socket.on('same room', function(clientName) {
-                    console.log("You are already in room : " + clientName);
-                    $('#messages').append(divSys("You are already in room : " + clientName, true));
+                    appendMsg("You are already in room : " + clientName, isErr=true);
 
                 });
                 
                 $("#message-form").submit(function(e) {
-                    var msg = $('#message').val();
-                    console.log('Submitted ' +  msg);
-
-                    socket.emit('new msg', msg);
-                    $('#messages').append(divMsg (myName, msg));
-                    $('#message').val('');
-                    $('#messages').scrollTop($('#messages').prop('scrollHeight'));
+                    var cmdBtnText = $('#command-button').text();
+                    switch(cmdBtnText) {
+                        case 'New Message':
+                            newMessage();
+                            break;
+                        case 'New Room':
+                            newRoom();
+                            break;
+                        case 'Change Name':
+                            changeName();
+                            break;
+                    }
                     e.preventDefault();
-
                 });
 
                 socket.on('rooms list', updateRooms);
 
-                setInterval(function() { socket.emit('rooms'); }, 2000);
+                setInterval(function() { socket.emit('rooms'); }, 20000);
 
+                $('.command').on('click', function() {
+                    updateCommandBtnText($(this).text(), $(this).attr('placeholder'));
+                });
             });
         
         </script>

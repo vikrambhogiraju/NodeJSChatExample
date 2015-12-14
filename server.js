@@ -7,7 +7,8 @@ var path = require('path');
 var mime = require('mime');
 
 
-var cache = {};  // Cache
+var cache = {};  // Cachelo
+
 var PORT = 8080;  // Port to run server at
 
 // Send "File Not Found" in HTTP response - 404
