@@ -1,4 +1,4 @@
-/* server,js */
+/* server.js */
 
 // Node.js Modules
 var http = require('http');
